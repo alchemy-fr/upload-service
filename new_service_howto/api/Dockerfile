@@ -1,7 +1,8 @@
-FROM php:7.4.4-fpm-alpine3.11 AS {{service-name}}-php
+FROM php:7.4.4-fpm-alpine3.11 AS {{service-name}}-api-php
 
 RUN apk add --no-cache --virtual .persistent-deps \
 		git \
+		gettext \
 		postgresql-dev \
 		icu-libs \
 		zlib \
@@ -9,7 +10,7 @@ RUN apk add --no-cache --virtual .persistent-deps \
 
 ENV APCU_VERSION=5.1.18 \
     XDEBUG_VERSION=2.9.4 \
-    APP_ENV=prodnamed
+    APP_ENV=prod
 
 RUN set -eux \
 	&& apk add --no-cache --virtual .build-deps \
@@ -31,7 +32,6 @@ RUN set -eux \
 	&& docker-php-ext-enable --ini-name 05-opcache.ini opcache \
 	&& apk del .build-deps
 
-COPY docker/app/conf.d/symfony.ini $PHP_INI_DIR/conf.d/symfony.ini
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 RUN ln -s $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini \
@@ -42,16 +42,16 @@ RUN ln -s $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini \
 
 WORKDIR /srv/app
 
-# Warm up composer cache for faster builds
+## Warm up composer cache for faster builds
 #COPY docker/caching/composer.* ./
-#RUN COMPOSER_MEMORY_LIMIT=-1 composer install --prefer-dist --no-dev --no-progress --no-suggest --classmap-authoritative --no-interaction --no-scripts \
+#RUN composer install --prefer-dist --no-dev --no-progress --no-suggest --classmap-authoritative --no-interaction --no-scripts \
 #    && rm -rf vendor composer.*
-# End warm up
+## End warm up
 
 COPY . .
 
 RUN mkdir -p var/cache var/logs var/sessions \
-    &&  COMPOSER_MEMORY_LIMIT=-1 composer install --prefer-dist --no-dev --no-progress --no-suggest --classmap-authoritative --no-interaction \
+    && composer install --prefer-dist --no-dev --no-progress --no-suggest --classmap-authoritative --no-interaction \
     && composer clear-cache \
     && chown -R app: .
 
@@ -59,9 +59,22 @@ ENTRYPOINT ["/srv/app/docker/fpm-entrypoint.sh"]
 
 CMD ["php-fpm"]
 
-FROM nginx:1.15.11-alpine AS {{service-name}}-nginx
+FROM nginx:1.15.11-alpine AS {{service-name}}-api-nginx
 
 COPY docker/nginx/conf.d /etc/nginx/conf.d/
-COPY --from={{service-name}}-php /srv/app/public /srv/app/public
+COPY --from={{service-name}}-api-php /srv/app/public /srv/app/public
 
 EXPOSE 80
+
+#FROM {{service-name}}-api-php as {{service-name}}-worker
+#
+#RUN apk add --no-cache \
+#        supervisor \
+#    && mkdir -p /var/log/supervisor \
+#    && chown -R app: /var/log/supervisor
+#
+#COPY docker /etc/supervisor.d/
+#
+#ENTRYPOINT []
+#
+#CMD ["/usr/bin/supervisord", "-n"]
