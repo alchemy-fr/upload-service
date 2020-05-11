@@ -224,20 +224,23 @@ dc up -d hello-api-nginx
 ```
 ### Add entity
 
-from dev container
+follow the docs :
+
+https://api-platform.com/docs/distribution/#using-symfony-flex-and-composer-advanced-users
+
+using the maker-bundle to manipulate entities :
+
 
 ```shell script
 composer require migrations
 
 sf make:entity --api-resource bar
+# ... add a simple "baz" field with everything as default (char 255, ...)
+
 sf make:migration
+sf doctrine:migrations:migrate
 ```
 
-follow the docs :
-
-https://api-platform.com/docs/distribution/#using-symfony-flex-and-composer-advanced-users
-
-using the maker-bundle to manipulate entities.
 
 ### Test
 
@@ -245,6 +248,55 @@ http://localhost:8130/api --> bar crud api !
 
 
 ## Step 4 : Add admin
+
+```shell script
+# sync and add libs
+../../bin/update-libs.sh
+composer config repositories.psr-http-message-bridge '{"type": "git", "url": "https://github.com/4rthem/psr-http-message-bridge.git"}'
+composer config repositories.admin-bundle '{"type": "path", "url": "./__lib/admin-bundle", "options": {"symlink": true}}'
+composer config repositories.oauth-server-bundle '{"type": "path", "url": "./__lib/oauth-server-bundle", "options": {"symlink": true}}'
+composer config repositories.remote-auth-bundle '{"type": "path", "url": "./__lib/remote-auth-bundle", "options": {"symlink": true}}'
+composer config repositories.report-bundle '{"type": "path", "url": "./__lib/report-bundle", "options": {"symlink": true}}'
+composer config repositories.report-sdk '{"type": "path", "url": "./__lib/report-sdk", "options": {"symlink": true}}'
+composer config repositories.api-test '{"type": "path", "url": "./__lib/api-test", "options": {"symlink": true}}'
+
+# allow to get "dev" libs
+composer config "minimum-stability" "dev"
+composer config "prefer-stable" true
+
+# install libs (for now, only  "admin-bundle")
+composer req "alchemy/admin-bundle:@dev"
+# ...
+# /!\ will end-up with error
+
+```
+
+if req admin-bundle ends-up with error
+
+"You have requested a non-existent parameter "easy_admin.site_title".
+
+Fix the bundles order :
+
+edit ./config/bundles.php, moving AlchemyAdminBundle _before_ EasyAdminBundle
+```text
+....
+    Alchemy\RemoteAuthBundle\AlchemyRemoteAuthBundle::class => ['all' => true],
+    Alchemy\AdminBundle\AlchemyAdminBundle::class => ['all' => true],
+    EasyCorp\Bundle\EasyAdminBundle\EasyAdminBundle::class => ['all' => true],
+```
+
+Test the fix by running bin/console cache:clear --> now ok
+
+
+Add a minimal conf file from template for admin:
+```shell script
+cp ../../new_service_howto/api/config/packages/admin.yaml ./config/packages
+sed -i 's/{{service-name}}/hello/g' ./config/packages/admin.yaml
+```
+
+### Test :
+
+http://localhost:8130/admin  --> bar admin !
 
 
 ---

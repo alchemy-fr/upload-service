@@ -1,0 +1,16 @@
+alchemy_admin:
+  service:
+    title: {{service-name}}
+    name: {{service-name}}
+
+easy_admin:
+  entities:
+    Bar:
+      class: App\Entity\Bar
+      list:
+        fields:
+          - id
+          - baz
+      form:
+        fields:
+          - { property: 'baz', type: text }
