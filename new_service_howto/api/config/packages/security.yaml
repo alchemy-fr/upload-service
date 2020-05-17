@@ -1,0 +1,51 @@
+# config/packages/security.yaml
+
+security:
+    role_hierarchy:
+        ROLE_ADMIN: ROLE_USER
+        ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+    providers:
+        remote_users:
+            id: Alchemy\RemoteAuthBundle\Security\RemoteUserProvider
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        api_doc:
+            pattern: ^/$
+            security: false
+
+        admin:
+            pattern:    ^/admin
+            stateless:  false
+            anonymous:  ~
+            logout:
+                path: alchemy_admin_logout
+                target: easyadmin
+            guard:
+                authenticators:
+                    - 'alchemy_remote.login_form.admin'
+
+                    # main:
+                    # anonymous: lazy
+                    # provider: users_in_memory
+
+                    # activate different ways to authenticate
+                    # https://symfony.com/doc/current/security.html#firewalls-authentication
+
+                    # https://symfony.com/doc/current/security/impersonating_user.html
+                    # switch_user: true
+        api:
+            anonymous: ~
+            stateless: true
+            fos_oauth:  true
+            remote_auth: true
+            # password: true
+
+    # Easy way to control access for large sections of your site
+    # Note: Only the *first* access control that matches will be used
+    access_control:
+        - { path: ^/admin/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin/reset-password/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin/auth/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin, roles: ROLE_ADMIN }
