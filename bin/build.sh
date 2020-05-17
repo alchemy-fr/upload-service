@@ -20,6 +20,8 @@ docker-compose -f docker-compose.yml build expose-api-php
 docker-compose -f docker-compose.yml build expose-worker
 docker-compose -f docker-compose.yml build expose-api-nginx
 docker-compose -f docker-compose.yml build expose-front
+docker-compose -f docker-compose.yml build hello-api-php
+docker-compose -f docker-compose.yml build hello-api-nginx
 docker-compose -f docker-compose.yml build notify-api-php
 docker-compose -f docker-compose.yml build notify-worker
 docker-compose -f docker-compose.yml build notify-api-nginx

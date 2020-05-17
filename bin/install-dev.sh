@@ -29,6 +29,7 @@ installComposer auth-api-php
 installComposer notify-api-php
 installComposer uploader-api-php
 installComposer expose-api-php
+installComposer hello-api-php
 
 installNodeModules expose-front-dev
 installNodeModules uploader-client-dev

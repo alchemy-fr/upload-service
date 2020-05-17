@@ -22,6 +22,7 @@ auth-api-php
 expose-api-php
 notify-api-php
 uploader-api-php
+hello-api-php
 "
 
 for app in ${APPS}; do

@@ -53,6 +53,19 @@ exec_container auth-api-php "bin/console alchemy:oauth:create-client ${UPLOADER_
     --scope group:list \
     --redirect-uri ${UPLOADER_BASE_URL}"
 
+# Setup Hello
+## Setup container
+exec_container hello-api-php "bin/setup.sh"
+## Create OAuth client for Admin
+exec_container auth-api-php "bin/console alchemy:oauth:create-client ${HELLO_ADMIN_CLIENT_ID} \
+    --random-id=${HELLO_ADMIN_CLIENT_RANDOM_ID} \
+    --secret=${HELLO_ADMIN_CLIENT_SECRET} \
+    --grant-type password \
+    --grant-type authorization_code \
+    --grant-type client_credentials \
+    --scope user:list \
+    --scope group:list \
+    --redirect-uri ${HELLO_BASE_URL}"
 
 # Setup Expose
 ## Setup container

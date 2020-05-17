@@ -5,6 +5,7 @@ auth/api
 expose/api
 uploader/api
 notify/api
+hello/api
 "
 
 NPM_PROJECTS="
