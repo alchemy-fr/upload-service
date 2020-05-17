@@ -44,6 +44,38 @@ services:
     ports:
       - ${EXPOSE_FRONT_DEV_PORT}:3000
 
+#  hello-front-dev:
+#    build:
+#      context: ./hello/front
+#      target: hello-front-build
+#    networks:
+#      - internal
+#    volumes:
+#      - ./expose/front:/usr/src/app
+#      - ./configs:/configs
+#    environment:
+#      - DEV_MODE
+#      - HELLO_BASE_URL
+#      - AUTH_BASE_URL
+#      - CLIENT_ID=${HELLO_CLIENT_ID}_${HELLO_CLIENT_RANDOM_ID}
+#      - CLIENT_SECRET=${HELLO_CLIENT_SECRET}
+#      - MATOMO_HOST
+#    ports:
+#      - ${HELLO_FRONT_DEV_PORT}:3000
+
+  hello-api-php:
+      environment:
+          - XDEBUG_ENABLED
+          - XDEBUG_CONFIG=remote_host=${PS_GATEWAY_IP} idekey=${IDE_KEY} remote_enable=1
+          - PHP_IDE_CONFIG=serverName=${PS_DEBUG_SERVER_NAME_PREFIX}auth
+      volumes:
+          - ./hello/api:/srv/app
+
+  hello-api-nginx:
+      volumes:
+          - ./hello/api:/srv/app
+
+
   uploader-api-php:
     environment:
       - XDEBUG_ENABLED
