@@ -1,0 +1,20 @@
+parameters:
+    env(DATABASE_URL): 'pgsql://%env(DB_USER)%:%env(DB_PASSWORD)%@db:5432/%env(DB_NAME)%'
+
+doctrine:
+    dbal:
+        driver: 'pdo_pgsql'
+        server_version: '11.2'
+        charset: utf8
+        url: '%env(resolve:DATABASE_URL)%'
+    orm:
+        auto_generate_proxy_classes: true
+        naming_strategy: doctrine.orm.naming_strategy.underscore
+        auto_mapping: true
+        mappings:
+            App:
+                is_bundle: false
+                type: annotation
+                dir: '%kernel.project_dir%/src/Entity'
+                prefix: 'App\Entity'
+                alias: App
