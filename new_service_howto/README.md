@@ -38,6 +38,9 @@ dc up -d dev db auth-api-nginx
 # create a dir for the service "hello"
 dc exec --user app dev mkdir hello
 
+# add a readme
+cp new_service_howto/_readme_hello.md hello/README.md
+
 # create a symfony "api" project (see https://symfony.com/doc/4.4/setup.html)
 dc exec --user app dev composer create-project symfony/skeleton hello/api ^4.4.0
 ```
